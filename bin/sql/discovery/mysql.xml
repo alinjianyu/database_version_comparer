@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<sqls>
+	<sql name="MYSQL_TABLE">
+          SELECT TABLE_SCHEMA AS DBT_OWNER,
+                 TABLE_NAME AS DBT_NAME,
+                 CASE TABLE_TYPE
+		             WHEN 'BASE TABLE' THEN
+		                  'TABLE'
+		                 ELSE
+		                  'VIEW'
+		           END AS DBT_TYPE,
+                 TABLE_COMMENT AS DBT_COMMENT,
+                 TABLE_ROWS AS DBT_ROWS
+                  FROM information_schema.`TABLES` 
+                     WHERE TABLE_SCHEMA NOT IN('PERFORMANCE_SCHEMA','TEST','INFORMATION_SCHEMA','MYSQL','SAKILA');
+	</sql>
+
+	<sql name="MYSQL_COLUMN">
+	     SELECT TABLE_SCHEMA AS DBF_OWNER,
+	            TABLE_NAME AS DBT_NAME ,
+	            'TABLE' AS DBT_TYPE,
+	            COLUMN_NAME AS DBF_NAME ,
+	            COLUMN_COMMENT AS DBF_COMMENT,
+	            COLUMN_TYPE AS DBF_TYPE ,
+	            CHARACTER_MAXIMUM_LENGTH AS DBF_LENGTH ,
+	            NUMERIC_PRECISION AS DBF_PRECISION,
+	            NUMERIC_SCALE AS DBF_SCALE,
+	            IS_NULLABLE AS DBF_NULLABLE,
+	            case COLUMN_KEY
+		            when 'PRI' then
+		                  '1'
+		                 else
+		                  '0'
+		               end DBF_ISPK,
+		        case COLUMN_KEY
+		            when 'PRI' then
+		                  '1'
+		                 else
+		                  '0'
+		               end DBF_ISFK
+	             FROM information_schema.`COLUMNS` WHERE
+	              TABLE_SCHEMA NOT IN('PERFORMANCE_SCHEMA','TEST','INFORMATION_SCHEMA','MYSQL','SAKILA');
+	</sql>
+</sqls>

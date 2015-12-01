@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<sqls>
+	<sql name="ORACLE_TABLE">
+		select OWNER      as DBT_OWNER,
+		       TABLE_NAME as DBT_NAME,
+		       TABLE_TYPE as DBT_TYPE,
+		       COMMENTS   as DBT_COMMENT,
+		       TABLE_ROWS as DBT_ROWS
+		  from (select atv.OWNER,
+		               atv.TABLE_NAME,
+		               atv.TABLE_TYPE,
+		               atv.TABLE_ROWS,
+		               atc.COMMENTS
+		          from (select owner,
+		                       table_name,
+		                       'TABLE' TABLE_TYPE,
+		                       NUM_ROWS as TABLE_ROWS
+		                  from dba_all_tables
+		                union
+		                select owner,
+		                       view_name,
+		                       'VIEW' TABLE_TYPE,
+		                       0 as TABLE_ROWS
+		                  from dba_views) atv
+		          left join dba_tab_comments atc
+		            on atv.OWNER = atc.OWNER
+		           and atv.TABLE_NAME = atc.TABLE_NAME)
+		 where OWNER not in ('MDSYS',
+		                     'OUTLN',
+		                     'CTXSYS',
+		                     'OLAPSYS',
+		                     'FLOWS_FILES',
+		                     'OWBSYS',
+		                     'HR',
+		                     'SYSTEM',
+		                     'EXFSYS',
+		                     'APEX_030200',
+		                     'SCOTT',
+		                     'DBSNMP',
+		                     'ORDSYS',
+		                     'SYSMAN',
+		                     'OE',
+		                     'SH',
+		                     'PM',
+		                     'APPQOSSYS',
+		                     'XDB',
+		                     'ORDDATA',
+		                     'IX',
+		                     'SYS',
+		                     'WMSYS',
+		                     'TSMSYS')
+		 order by DBT_OWNER, DBT_NAME
+	</sql>
+	
+	<sql name="ORACLE_COLUMN">
+		select OWNER          as DBT_OWNER,
+		       TABLE_NAME     as DBT_NAME,
+		       TABLE_TYPE     as DBT_TYPE,
+		       COLUMN_NAME    as DBF_NAME,
+		       COLUMN_COMMENT as DBF_COMMENT,
+		       DATA_TYPE      as DBF_TYPE,
+		       DATA_LENGTH    as DBF_LENGTH,
+		       DATA_PRECISION as DBF_PRECISION,
+		       DATA_SCALE     as DBF_SCALE,
+		       NULLABLE       as DBF_NULLABLE,
+		       ISPK           as DBF_ISPK,
+		       ISFK           as DBF_ISKF
+		  from (select atv.OWNER,
+		               atv.TABLE_NAME,
+		               atv.TABLE_TYPE,
+		               atcl.COLUMN_NAME,
+		               acc.COMMENTS as COLUMN_COMMENT,
+		               atcl.DATA_TYPE,
+		               atcl.DATA_LENGTH,
+		               atcl.DATA_PRECISION,
+		               atcl.DATA_SCALE,
+		               atcl.NULLABLE,
+		               case
+		                 when instr(consk.ctype, 'P') > 0 then
+		                  '1'
+		                 else
+		                  '0'
+		               end ISPK,
+		               case
+		                 when instr(consk.ctype, 'R') > 0 then
+		                  '1'
+		                 else
+		                  '0'
+		               end ISFK
+		          from (select owner, table_name, 'TABLE' TABLE_TYPE
+		                  from dba_all_tables
+		                union
+		                select owner, view_name, 'VIEW' TABLE_TYPE
+		                  from dba_views) atv
+		          left join dba_tab_columns atcl
+		            on atv.OWNER = atcl.owner
+		           and atv.TABLE_NAME = atcl.TABLE_NAME
+		          left join dba_col_comments acc
+		            on atcl.TABLE_NAME = acc.TABLE_NAME
+		           and atcl.OWNER = acc.OWNER
+		           and atcl.COLUMN_NAME = acc.COLUMN_NAME
+		          left join (select conc.owner owner,
+		                           conc.table_name table_name,
+		                           conc.column_name column_name,
+		                           wm_concat(ac.Constraint_Type) ctype
+		                      from dba_cons_columns conc, dba_constraints ac
+		                     where conc.CONSTRAINT_NAME = ac.CONSTRAINT_NAME
+		                       and (ac.Constraint_Type = 'P' or
+		                           ac.Constraint_Type = 'R')
+		                     group by conc.owner, conc.table_name, conc.column_name) consk
+		            on consk.owner = atv.OWNER
+		           and consk.TABLE_NAME = atv.TABLE_NAME
+		           and consk.COLUMN_NAME = atcl.COLUMN_NAME)
+		 where OWNER not in ('MDSYS',
+		                     'OUTLN',
+		                     'CTXSYS',
+		                     'OLAPSYS',
+		                     'FLOWS_FILES',
+		                     'OWBSYS',
+		                     'HR',
+		                     'SYSTEM',
+		                     'EXFSYS',
+		                     'APEX_030200',
+		                     'SCOTT',
+		                     'DBSNMP',
+		                     'ORDSYS',
+		                     'SYSMAN',
+		                     'OE',
+		                     'SH',
+		                     'PM',
+		                     'APPQOSSYS',
+		                     'XDB',
+		                     'ORDDATA',
+		                     'IX',
+		                     'SYS',
+		                     'WMSYS',
+		                     'TSMSYS')
+		 order by DBT_OWNER, DBT_NAME
+	</sql>
+</sqls>

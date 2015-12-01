@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<sqls>
+
+	<!-- 数据源DAO -->
+	<import file="sql/data/ds_sql.xml"/>
+
+	<!-- Oracle数据发现 -->
+	<import file="sql/discovery/oracle.xml"/>
+	
+	<!-- MySQL数据发现 -->
+	<import file="sql/discovery/mysql.xml"/>
+	
+</sqls>
